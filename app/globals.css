@@ -1,26 +1,110 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Espresso Browns */
+  --color-espresso-50: #faf6f1;
+  --color-espresso-100: #f0e6d8;
+  --color-espresso-200: #e0ccb0;
+  --color-espresso-300: #cda97e;
+  --color-espresso-400: #b8854f;
+  --color-espresso-500: #a06c36;
+  --color-espresso-600: #8a5629;
+  --color-espresso-700: #6e4122;
+  --color-espresso-800: #5a3520;
+  --color-espresso-900: #3d2415;
+  --color-espresso-950: #2a1810;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Cream */
+  --color-cream-50: #fefdfb;
+  --color-cream-100: #fdf8f0;
+  --color-cream-200: #faf0e0;
+  --color-cream-300: #f5e3c8;
+  --color-cream-400: #edd2a6;
+  --color-cream-500: #e4bf83;
+  --color-cream-600: #d4a460;
+  --color-cream-700: #b88540;
+  --color-cream-800: #966a33;
+  --color-cream-900: #7a572c;
+
+  /* Terracotta */
+  --color-terracotta-50: #fdf5ef;
+  --color-terracotta-100: #fbe8d9;
+  --color-terracotta-200: #f6cdb2;
+  --color-terracotta-300: #f0ab80;
+  --color-terracotta-400: #e9834d;
+  --color-terracotta-500: #e3652b;
+  --color-terracotta-600: #d44d21;
+  --color-terracotta-700: #b0391d;
+  --color-terracotta-800: #8d2f1f;
+  --color-terracotta-900: #72291c;
+
+  /* Sage Green */
+  --color-sage-50: #f4f7f4;
+  --color-sage-100: #e4ece4;
+  --color-sage-200: #c9d9c9;
+  --color-sage-300: #a3bda3;
+  --color-sage-400: #7a9c7a;
+  --color-sage-500: #5a7f5a;
+  --color-sage-600: #466546;
+  --color-sage-700: #3a523a;
+  --color-sage-800: #304230;
+  --color-sage-900: #283628;
+
+  /* Semantic */
+  --color-background: var(--color-cream-50);
+  --color-foreground: var(--color-espresso-950);
+
+  /* Fonts */
+  --font-heading: var(--font-playfair);
+  --font-body: var(--font-inter);
+  --font-sans: var(--font-inter);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading), Georgia, serif;
+}
+
+/* Mapbox overrides */
+.mapboxgl-popup-content {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+}
+
+.mapboxgl-popup-tip {
+  border-top-color: white !important;
+}
+
+.mapboxgl-popup-close-button {
+  font-size: 18px;
+  padding: 4px 8px;
+  color: var(--color-espresso-600);
+  z-index: 10;
+}
+
+.mapboxgl-popup-close-button:hover {
+  background-color: var(--color-cream-100);
+  color: var(--color-espresso-900);
+}
+
+.mapboxgl-ctrl-group {
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
 }
