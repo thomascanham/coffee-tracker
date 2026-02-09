@@ -1,11 +1,26 @@
 export type Region =
-  | "London"
-  | "South West"
-  | "Scotland"
+  // England
+  | "North East"
   | "North West"
-  | "Yorkshire"
-  | "Wales"
-  | "South East";
+  | "Yorkshire and the Humber"
+  | "East Midlands"
+  | "West Midlands"
+  | "East of England"
+  | "London"
+  | "South East"
+  | "South West"
+  // Scotland
+  | "Highlands & Islands"
+  | "North East Scotland"
+  | "Central Belt"
+  | "South Scotland"
+  // Wales
+  | "North Wales"
+  | "Mid Wales"
+  | "South West Wales"
+  | "South East Wales"
+  // Northern Ireland
+  | "Northern Ireland";
 
 export interface CoffeeShop {
   slug: string;

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { isValidRating, isValidLatitude, isValidLongitude, isValidRegion, isValidUrl } from "@/lib/validation";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -50,16 +52,39 @@ export async function POST(req: Request) {
       );
     }
 
+    const parsedLat = parseFloat(lat);
+    const parsedLng = parseFloat(lng);
+    const parsedRating = parseInt(rating, 10);
+
+    if (!isValidRegion(region)) {
+      return NextResponse.json({ error: "Invalid region" }, { status: 400 });
+    }
+    if (!isValidLatitude(parsedLat)) {
+      return NextResponse.json({ error: "Latitude must be between -90 and 90" }, { status: 400 });
+    }
+    if (!isValidLongitude(parsedLng)) {
+      return NextResponse.json({ error: "Longitude must be between -180 and 180" }, { status: 400 });
+    }
+    if (!isValidRating(parsedRating)) {
+      return NextResponse.json({ error: "Rating must be between 1 and 5" }, { status: 400 });
+    }
+    if (website && !isValidUrl(website)) {
+      return NextResponse.json({ error: "Website must be a valid URL" }, { status: 400 });
+    }
+    if (imageUrl && !isValidUrl(imageUrl)) {
+      return NextResponse.json({ error: "Image URL must be a valid URL" }, { status: 400 });
+    }
+
     // Generate slug from name
     let slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
 
-    // Check if slug already exists, append random suffix if so
+    // Check if slug already exists, append cryptographically random suffix
     const existing = await prisma.coffeeShop.findUnique({ where: { slug } });
     if (existing) {
-      const suffix = Math.random().toString(36).substring(2, 8);
+      const suffix = crypto.randomBytes(4).toString("hex");
       slug = `${slug}-${suffix}`;
     }
 
@@ -70,9 +95,9 @@ export async function POST(req: Request) {
         region,
         city,
         address,
-        lat: parseFloat(lat),
-        lng: parseFloat(lng),
-        rating: parseInt(rating, 10),
+        lat: parsedLat,
+        lng: parsedLng,
+        rating: parsedRating,
         roaster,
         brewMethods,
         description,

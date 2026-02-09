@@ -1,9 +1,23 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { rateLimit } from "@/lib/rate-limit";
+import { isValidEmail, isValidUsername, validatePassword } from "@/lib/validation";
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const { success, retryAfter } = rateLimit(`signup:${ip}`, {
+      maxRequests: 5,
+      windowMs: 15 * 60 * 1000, // 5 attempts per 15 minutes
+    });
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(retryAfter) } }
+      );
+    }
+
     const { username, email, password } = await req.json();
 
     if (!username || !email || !password) {
@@ -13,25 +27,36 @@ export async function POST(req: Request) {
       );
     }
 
-    if (password.length < 8) {
+    if (!isValidEmail(email)) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
+        { error: "Please enter a valid email address" },
         { status: 400 }
       );
     }
 
-    const existingEmail = await prisma.user.findUnique({ where: { email } });
-    if (existingEmail) {
+    if (!isValidUsername(username)) {
       return NextResponse.json(
-        { error: "An account with this email already exists" },
-        { status: 409 }
+        { error: "Username must be 2-30 characters and contain only letters, numbers, hyphens and underscores" },
+        { status: 400 }
       );
     }
 
-    const existingUsername = await prisma.user.findUnique({ where: { username } });
-    if (existingUsername) {
+    const passwordError = validatePassword(password);
+    if (passwordError) {
       return NextResponse.json(
-        { error: "This username is already taken" },
+        { error: passwordError },
+        { status: 400 }
+      );
+    }
+
+    const [existingEmail, existingUsername] = await Promise.all([
+      prisma.user.findUnique({ where: { email } }),
+      prisma.user.findUnique({ where: { username } }),
+    ]);
+
+    if (existingEmail || existingUsername) {
+      return NextResponse.json(
+        { error: "An account with this email or username already exists" },
         { status: 409 }
       );
     }

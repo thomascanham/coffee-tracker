@@ -15,6 +15,11 @@ export default auth((req) => {
     return NextResponse.redirect(signInUrl);
   }
 
+  // Protect authenticated API routes — return 401
+  if ((pathname.startsWith("/api/profile") || pathname.startsWith("/api/shops")) && !isSignedIn) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   // Redirect signed-in users away from auth pages
   if ((pathname === "/sign-in" || pathname === "/sign-up" || pathname === "/forgot-password" || pathname === "/reset-password") && isSignedIn) {
     return NextResponse.redirect(new URL("/", req.url));
@@ -24,5 +29,13 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/profile/:path*", "/sign-in", "/sign-up", "/forgot-password", "/reset-password"],
+  matcher: [
+    "/profile/:path*",
+    "/sign-in",
+    "/sign-up",
+    "/forgot-password",
+    "/reset-password",
+    "/api/profile/:path*",
+    "/api/shops/:path*",
+  ],
 };

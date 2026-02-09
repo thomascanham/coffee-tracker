@@ -1,9 +1,24 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { rateLimit } from "@/lib/rate-limit";
+import { validatePassword } from "@/lib/validation";
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const { success, retryAfter } = rateLimit(`reset:${ip}`, {
+      maxRequests: 5,
+      windowMs: 15 * 60 * 1000, // 5 attempts per 15 minutes
+    });
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(retryAfter) } }
+      );
+    }
+
     const { token, password } = await req.json();
 
     if (!token || !password) {
@@ -13,15 +28,19 @@ export async function POST(req: Request) {
       );
     }
 
-    if (password.length < 8) {
+    const passwordError = validatePassword(password);
+    if (passwordError) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
+        { error: passwordError },
         { status: 400 }
       );
     }
 
+    // Hash the incoming token to compare with the stored hash
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
     const user = await prisma.user.findUnique({
-      where: { passwordResetToken: token },
+      where: { passwordResetToken: tokenHash },
     });
 
     if (!user || !user.passwordResetExpires || user.passwordResetExpires < new Date()) {
@@ -39,6 +58,7 @@ export async function POST(req: Request) {
         password: hashedPassword,
         passwordResetToken: null,
         passwordResetExpires: null,
+        tokenVersion: { increment: 1 },
       },
     });
 

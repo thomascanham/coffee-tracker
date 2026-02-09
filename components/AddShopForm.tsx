@@ -4,15 +4,34 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import BrewMethodSelect from "@/components/BrewMethodSelect";
 
-const REGIONS = [
-  "London",
-  "South West",
-  "Scotland",
-  "North West",
-  "Yorkshire",
-  "Wales",
-  "South East",
-] as const;
+const REGIONS = {
+  England: [
+    "North East",
+    "North West",
+    "Yorkshire and the Humber",
+    "East Midlands",
+    "West Midlands",
+    "East of England",
+    "London",
+    "South East",
+    "South West",
+  ],
+  Scotland: [
+    "Highlands & Islands",
+    "North East Scotland",
+    "Central Belt",
+    "South Scotland",
+  ],
+  Wales: [
+    "North Wales",
+    "Mid Wales",
+    "South West Wales",
+    "South East Wales",
+  ],
+  "Northern Ireland": [
+    "Northern Ireland",
+  ],
+} as const;
 
 export default function AddShopForm() {
   const router = useRouter();
@@ -188,10 +207,14 @@ export default function AddShopForm() {
           className={inputClass}
         >
           <option value="">Select a region</option>
-          {REGIONS.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
+          {Object.entries(REGIONS).map(([country, regions]) => (
+            <optgroup key={country} label={country}>
+              {regions.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </div>
