@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { CoffeeShop, Region } from "@/lib/types";
 import RegionFilter from "@/components/RegionFilter";
 import ViewToggle from "@/components/ViewToggle";
@@ -14,6 +16,7 @@ interface ExploreClientProps {
 }
 
 export default function ExploreClient({ shops, regions }: ExploreClientProps) {
+  const { data: session } = useSession();
   const [view, setView] = useState<"list" | "map">("list");
   const [regionFilter, setRegionFilter] = useState<Region | "All">("All");
   const [selectedShop, setSelectedShop] = useState<CoffeeShop | null>(null);
@@ -42,7 +45,17 @@ export default function ExploreClient({ shops, regions }: ExploreClientProps) {
           selected={regionFilter}
           onSelect={setRegionFilter}
         />
-        <ViewToggle view={view} onToggle={setView} />
+        <div className="flex items-center gap-3">
+          <ViewToggle view={view} onToggle={setView} />
+          {session && (
+            <Link
+              href="/explore/add"
+              className="rounded-full bg-terracotta-600 px-5 py-2 text-sm font-semibold text-cream-50 transition-colors hover:bg-terracotta-700"
+            >
+              Add Shop
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Content */}
