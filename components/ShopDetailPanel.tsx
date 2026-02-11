@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { CoffeeShop } from "@/lib/types";
 import RatingStars from "./RatingStars";
 import { useEffect } from "react";
@@ -8,9 +9,10 @@ import { useEffect } from "react";
 interface ShopDetailPanelProps {
   shop: CoffeeShop | null;
   onClose: () => void;
+  currentUserId?: string;
 }
 
-export default function ShopDetailPanel({ shop, onClose }: ShopDetailPanelProps) {
+export default function ShopDetailPanel({ shop, onClose, currentUserId }: ShopDetailPanelProps) {
   useEffect(() => {
     if (!shop) return;
     const handleEsc = (e: KeyboardEvent) => {
@@ -151,30 +153,54 @@ export default function ShopDetailPanel({ shop, onClose }: ShopDetailPanelProps)
                 </div>
               </div>
 
-              {/* Website link */}
-              <a
-                href={shop.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-espresso-900 px-6 py-3 text-sm font-semibold text-cream-50 transition-colors hover:bg-espresso-800"
-              >
-                Visit Website
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+              {/* Website link + Edit */}
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <a
+                  href={shop.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-espresso-900 px-6 py-3 text-sm font-semibold text-cream-50 transition-colors hover:bg-espresso-800"
                 >
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                  <polyline points="15 3 21 3 21 9" />
-                  <line x1="10" y1="14" x2="21" y2="3" />
-                </svg>
-              </a>
+                  Visit Website
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </a>
+                {currentUserId && shop.addedByUserId === currentUserId && (
+                  <Link
+                    href={`/explore/edit/${shop.slug}`}
+                    className="inline-flex items-center gap-2 rounded-full border border-cream-300 px-6 py-3 text-sm font-semibold text-espresso-700 transition-colors hover:bg-cream-50"
+                  >
+                    Edit
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                      <path d="m15 5 4 4" />
+                    </svg>
+                  </Link>
+                )}
+              </div>
             </div>
           </>
         )}

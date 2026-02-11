@@ -84,6 +84,7 @@ export default function ExploreClient({ shops, regions }: ExploreClientProps) {
       <ShopDetailPanel
         shop={selectedShop}
         onClose={() => setSelectedShop(null)}
+        currentUserId={session?.user?.id}
       />
     </>
   );

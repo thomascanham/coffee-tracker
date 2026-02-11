@@ -39,4 +39,5 @@ export interface CoffeeShop {
   notes: string;
   imageUrl: string;
   website: string;
+  addedByUserId?: string | null;
 }

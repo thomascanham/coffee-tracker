@@ -1,11 +1,12 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 
 export default function UserMenu() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -38,13 +39,15 @@ export default function UserMenu() {
 
       {open && (
         <div className="absolute right-0 mt-2 w-48 rounded-xl border border-cream-200 bg-white py-1 shadow-lg">
-          <Link
-            href="/profile"
-            onClick={() => setOpen(false)}
-            className="block px-4 py-2 text-sm text-espresso-700 hover:bg-cream-50"
+          <button
+            onClick={() => {
+              setOpen(false);
+              router.push("/profile");
+            }}
+            className="block w-full px-4 py-2 text-left text-sm text-espresso-700 hover:bg-cream-50"
           >
             Profile
-          </Link>
+          </button>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
             className="block w-full px-4 py-2 text-left text-sm text-espresso-700 hover:bg-cream-50"

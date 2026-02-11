@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import BrewMethodSelect from "@/components/BrewMethodSelect";
+import { CoffeeShop } from "@/lib/types";
 
 const REGIONS = {
   England: [
@@ -33,24 +34,30 @@ const REGIONS = {
   ],
 } as const;
 
-export default function AddShopForm() {
+interface AddShopFormProps {
+  initialData?: CoffeeShop;
+  shopSlug?: string;
+}
+
+export default function AddShopForm({ initialData, shopSlug }: AddShopFormProps) {
+  const isEditing = Boolean(shopSlug);
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const [name, setName] = useState("");
-  const [region, setRegion] = useState("");
-  const [city, setCity] = useState("");
-  const [address, setAddress] = useState("");
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
-  const [rating, setRating] = useState("");
-  const [roaster, setRoaster] = useState("");
-  const [brewMethods, setBrewMethods] = useState<string[]>([]);
-  const [description, setDescription] = useState("");
-  const [notes, setNotes] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [website, setWebsite] = useState("");
+  const [name, setName] = useState(initialData?.name ?? "");
+  const [region, setRegion] = useState(initialData?.region ?? "");
+  const [city, setCity] = useState(initialData?.city ?? "");
+  const [address, setAddress] = useState(initialData?.address ?? "");
+  const [lat, setLat] = useState(initialData ? String(initialData.coordinates.lat) : "");
+  const [lng, setLng] = useState(initialData ? String(initialData.coordinates.lng) : "");
+  const [rating, setRating] = useState(initialData ? String(initialData.rating) : "");
+  const [roaster, setRoaster] = useState(initialData?.roaster ?? "");
+  const [brewMethods, setBrewMethods] = useState<string[]>(initialData?.brewMethods ?? []);
+  const [description, setDescription] = useState(initialData?.description ?? "");
+  const [notes, setNotes] = useState(initialData?.notes ?? "");
+  const [imageUrl, setImageUrl] = useState(initialData?.imageUrl ?? "");
+  const [website, setWebsite] = useState(initialData?.website ?? "");
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState("");
 
@@ -66,8 +73,10 @@ export default function AddShopForm() {
     setSubmitting(true);
 
     try {
-      const res = await fetch("/api/shops", {
-        method: "POST",
+      const url = isEditing ? `/api/shops/${shopSlug}` : "/api/shops";
+      const method = isEditing ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
@@ -169,7 +178,7 @@ export default function AddShopForm() {
       className="mx-auto max-w-2xl rounded-2xl border border-cream-200 bg-white p-6 shadow-sm sm:p-8"
     >
       <h2 className="mb-6 text-2xl font-bold text-espresso-900">
-        Add a Coffee Shop
+        {isEditing ? "Edit Coffee Shop" : "Add a Coffee Shop"}
       </h2>
 
       {error && (
@@ -432,7 +441,9 @@ export default function AddShopForm() {
         disabled={submitting}
         className="w-full rounded-full bg-terracotta-600 px-6 py-3 text-sm font-semibold text-cream-50 transition-colors hover:bg-terracotta-700 disabled:opacity-50"
       >
-        {submitting ? "Adding..." : "Add Coffee Shop"}
+        {submitting
+          ? (isEditing ? "Saving..." : "Adding...")
+          : (isEditing ? "Save Changes" : "Add Coffee Shop")}
       </button>
     </form>
   );

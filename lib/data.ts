@@ -16,6 +16,7 @@ function toShop(row: {
   notes: string;
   imageUrl: string;
   website: string;
+  addedByUserId?: string | null;
 }): CoffeeShop {
   return {
     slug: row.slug,
@@ -31,6 +32,7 @@ function toShop(row: {
     notes: row.notes,
     imageUrl: row.imageUrl,
     website: row.website,
+    addedByUserId: row.addedByUserId ?? null,
   };
 }
 
