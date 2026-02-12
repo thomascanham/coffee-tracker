@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import Map, {
   Marker,
   Popup,
@@ -10,13 +10,16 @@ import Map, {
 import useSupercluster from "use-supercluster";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { CoffeeShop } from "@/lib/types";
+import { LatLng } from "@/lib/geo";
 import { shopsToGeoJSON } from "@/lib/utils";
 import MapMarker from "./MapMarker";
 import MapPopup from "./MapPopup";
+import UserMarker from "./UserMarker";
 
 interface MapViewProps {
   shops: CoffeeShop[];
   onSelectShop: (shop: CoffeeShop) => void;
+  userLocation?: LatLng | null;
 }
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
@@ -28,9 +31,10 @@ const INITIAL_VIEW = {
   zoom: 5.5,
 };
 
-export default function MapView({ shops, onSelectShop }: MapViewProps) {
+export default function MapView({ shops, onSelectShop, userLocation }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   const [popupShop, setPopupShop] = useState<CoffeeShop | null>(null);
+  const hasFlewToUser = useRef(false);
   const [bounds, setBounds] = useState<
     [number, number, number, number] | undefined
   >(undefined);
@@ -77,6 +81,18 @@ export default function MapView({ shops, onSelectShop }: MapViewProps) {
       duration: 500,
     });
   };
+
+  // Fly to user's location on first fix
+  useEffect(() => {
+    if (userLocation && !hasFlewToUser.current && mapRef.current) {
+      mapRef.current.flyTo({
+        center: [userLocation.lng, userLocation.lat],
+        zoom: 10,
+        duration: 1000,
+      });
+      hasFlewToUser.current = true;
+    }
+  }, [userLocation]);
 
   if (!MAPBOX_TOKEN || MAPBOX_TOKEN === "your_mapbox_token_here") {
     return (
@@ -166,6 +182,8 @@ export default function MapView({ shops, onSelectShop }: MapViewProps) {
             </Marker>
           );
         })}
+
+        {userLocation && <UserMarker location={userLocation} />}
 
         {popupShop && (
           <Popup

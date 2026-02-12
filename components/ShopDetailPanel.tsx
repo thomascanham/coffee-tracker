@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CoffeeShop } from "@/lib/types";
+import { LatLng, distanceInMiles, formatDistance } from "@/lib/geo";
 import RatingStars from "./RatingStars";
 import { useEffect } from "react";
 
@@ -10,9 +11,10 @@ interface ShopDetailPanelProps {
   shop: CoffeeShop | null;
   onClose: () => void;
   currentUserId?: string;
+  userLocation?: LatLng | null;
 }
 
-export default function ShopDetailPanel({ shop, onClose, currentUserId }: ShopDetailPanelProps) {
+export default function ShopDetailPanel({ shop, onClose, currentUserId, userLocation }: ShopDetailPanelProps) {
   useEffect(() => {
     if (!shop) return;
     const handleEsc = (e: KeyboardEvent) => {
@@ -98,6 +100,11 @@ export default function ShopDetailPanel({ shop, onClose, currentUserId }: ShopDe
                   {shop.region}
                 </span>
                 <span className="text-sm text-espresso-400">{shop.city}</span>
+                {userLocation && (
+                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                    {formatDistance(distanceInMiles(userLocation, shop.coordinates))} away
+                  </span>
+                )}
               </div>
 
               <h2 className="mb-2 font-heading text-2xl font-bold text-espresso-900">

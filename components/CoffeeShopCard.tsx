@@ -1,13 +1,15 @@
 import Image from "next/image";
 import { CoffeeShop } from "@/lib/types";
+import { formatDistance } from "@/lib/geo";
 import RatingStars from "./RatingStars";
 
 interface CoffeeShopCardProps {
   shop: CoffeeShop;
+  distance?: number | null;
   onSelect: (shop: CoffeeShop) => void;
 }
 
-export default function CoffeeShopCard({ shop, onSelect }: CoffeeShopCardProps) {
+export default function CoffeeShopCard({ shop, distance, onSelect }: CoffeeShopCardProps) {
   return (
     <button
       onClick={() => onSelect(shop)}
@@ -37,7 +39,12 @@ export default function CoffeeShopCard({ shop, onSelect }: CoffeeShopCardProps) 
         <h3 className="font-heading text-lg font-semibold text-espresso-900">
           {shop.name}
         </h3>
-        <p className="text-sm text-espresso-500">{shop.city}</p>
+        <p className="text-sm text-espresso-500">
+          {shop.city}
+          {distance != null && (
+            <span className="ml-2 text-sage-600">&middot; {formatDistance(distance)} away</span>
+          )}
+        </p>
         <RatingStars rating={shop.rating} />
         <p className="text-xs text-espresso-400">
           Roaster: {shop.roaster}

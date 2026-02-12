@@ -17,6 +17,7 @@ export async function GET() {
       email: true,
       profilePictureUrl: true,
       favouriteBrewMethods: true,
+      locationEnabled: true,
     },
   });
 
@@ -34,7 +35,7 @@ export async function PUT(req: Request) {
   }
 
   try {
-    const { username, profilePictureUrl, favouriteBrewMethods } = await req.json();
+    const { username, profilePictureUrl, favouriteBrewMethods, locationEnabled } = await req.json();
 
     if (username !== undefined && username !== "" && !isValidUsername(username)) {
       return NextResponse.json(
@@ -57,6 +58,13 @@ export async function PUT(req: Request) {
       );
     }
 
+    if (locationEnabled !== undefined && typeof locationEnabled !== "boolean") {
+      return NextResponse.json(
+        { error: "locationEnabled must be a boolean" },
+        { status: 400 }
+      );
+    }
+
     if (username) {
       const existing = await prisma.user.findUnique({ where: { username } });
       if (existing && existing.id !== session.user.id) {
@@ -73,6 +81,7 @@ export async function PUT(req: Request) {
         ...(username !== undefined && { username, name: username }),
         ...(profilePictureUrl !== undefined && { profilePictureUrl }),
         ...(favouriteBrewMethods !== undefined && { favouriteBrewMethods }),
+        ...(locationEnabled !== undefined && { locationEnabled }),
       },
       select: {
         id: true,
@@ -80,6 +89,7 @@ export async function PUT(req: Request) {
         email: true,
         profilePictureUrl: true,
         favouriteBrewMethods: true,
+        locationEnabled: true,
       },
     });
 
