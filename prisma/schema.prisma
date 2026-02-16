@@ -25,6 +25,7 @@ model User {
   accounts          Account[]
   sessions          Session[]
   coffeeShops       CoffeeShop[]
+  favourites        Favourite[]
 
   @@map("users")
 }
@@ -88,5 +89,19 @@ model CoffeeShop {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  favourites  Favourite[]
+
   @@map("coffee_shops")
+}
+
+model Favourite {
+  id           String     @id @default(cuid())
+  userId       String
+  coffeeShopId Int
+  createdAt    DateTime   @default(now())
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coffeeShop   CoffeeShop @relation(fields: [coffeeShopId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, coffeeShopId])
+  @@map("favourites")
 }

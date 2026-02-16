@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CoffeeShop } from "@/lib/types";
 import { LatLng, distanceInMiles, formatDistance } from "@/lib/geo";
 import RatingStars from "./RatingStars";
+import FavouriteButton from "./FavouriteButton";
 import { useEffect } from "react";
 
 interface ShopDetailPanelProps {
@@ -12,9 +13,11 @@ interface ShopDetailPanelProps {
   onClose: () => void;
   currentUserId?: string;
   userLocation?: LatLng | null;
+  isFavourited?: boolean;
+  onToggleFavourite?: (slug: string, favourited: boolean) => void;
 }
 
-export default function ShopDetailPanel({ shop, onClose, currentUserId, userLocation }: ShopDetailPanelProps) {
+export default function ShopDetailPanel({ shop, onClose, currentUserId, userLocation, isFavourited, onToggleFavourite }: ShopDetailPanelProps) {
   useEffect(() => {
     if (!shop) return;
     const handleEsc = (e: KeyboardEvent) => {
@@ -107,9 +110,18 @@ export default function ShopDetailPanel({ shop, onClose, currentUserId, userLoca
                 )}
               </div>
 
-              <h2 className="mb-2 font-heading text-2xl font-bold text-espresso-900">
-                {shop.name}
-              </h2>
+              <div className="mb-2 flex items-center gap-2">
+                <h2 className="font-heading text-2xl font-bold text-espresso-900">
+                  {shop.name}
+                </h2>
+                {currentUserId && (
+                  <FavouriteButton
+                    shopSlug={shop.slug}
+                    favourited={!!isFavourited}
+                    onToggle={onToggleFavourite}
+                  />
+                )}
+              </div>
 
               <RatingStars rating={shop.rating} />
 

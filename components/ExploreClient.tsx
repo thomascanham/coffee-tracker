@@ -25,6 +25,7 @@ export default function ExploreClient({ shops, regions }: ExploreClientProps) {
   const [view, setView] = useState<"list" | "map">("list");
   const [regionFilter, setRegionFilter] = useState<Region | "All">("All");
   const [selectedShop, setSelectedShop] = useState<CoffeeShop | null>(null);
+  const [favouriteSlugs, setFavouriteSlugs] = useState<Set<string>>(new Set());
   const { location, status, error, requestLocation, clearLocation } = useUserLocation();
 
   // Auto-request location if preference is saved
@@ -74,6 +75,37 @@ export default function ExploreClient({ shops, regions }: ExploreClientProps) {
     },
     [session?.user?.id]
   );
+
+  // Fetch favourite slugs when logged in
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    let cancelled = false;
+    async function fetchFavourites() {
+      try {
+        const res = await fetch("/api/favourites");
+        if (res.ok) {
+          const { favourites } = await res.json();
+          if (!cancelled) setFavouriteSlugs(new Set(favourites));
+        }
+      } catch {
+        // Silently fail
+      }
+    }
+    fetchFavourites();
+    return () => { cancelled = true; };
+  }, [session?.user?.id]);
+
+  const handleToggleFavourite = useCallback((slug: string, favourited: boolean) => {
+    setFavouriteSlugs((prev) => {
+      const next = new Set(prev);
+      if (favourited) {
+        next.add(slug);
+      } else {
+        next.delete(slug);
+      }
+      return next;
+    });
+  }, []);
 
   const handleEnable = useCallback(() => {
     requestLocation();
@@ -153,6 +185,9 @@ export default function ExploreClient({ shops, regions }: ExploreClientProps) {
               shop={shop}
               distance={distance}
               onSelect={setSelectedShop}
+              isFavourited={favouriteSlugs.has(shop.slug)}
+              onToggleFavourite={handleToggleFavourite}
+              isLoggedIn={!!session}
             />
           ))}
           {shopsWithDistance.length === 0 && (
@@ -177,6 +212,8 @@ export default function ExploreClient({ shops, regions }: ExploreClientProps) {
         onClose={() => setSelectedShop(null)}
         currentUserId={session?.user?.id}
         userLocation={location}
+        isFavourited={selectedShop ? favouriteSlugs.has(selectedShop.slug) : false}
+        onToggleFavourite={handleToggleFavourite}
       />
     </>
   );
